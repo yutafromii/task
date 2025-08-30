@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>ログイン</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+
+  <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
+    <h1 class="text-2xl font-bold text-center mb-6">ログイン</h1>
+
+    <form id="login-form" class="space-y-4">
+      <div>
+        <label for="username" class="block mb-1 font-medium">ユーザー名</label>
+        <input type="text" id="username" name="username" class="w-full border border-gray-300 p-2 rounded" required />
+      </div>
+
+      <div>
+        <label for="password" class="block mb-1 font-medium">パスワード</label>
+        <input type="password" id="password" name="password" class="w-full border border-gray-300 p-2 rounded" required />
+      </div>
+
+      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+        ログイン
+      </button>
+
+      <div id="error-message" class="text-red-500 text-sm mt-2 hidden">
+        ログインに失敗しました
+      </div>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById("login-form").addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        const response = await fetch("/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          localStorage.setItem("jwt", data.token);
+          alert("ログイン成功！");
+          // ここで遷移先を指定
+          // location.href = "/home";
+        } else {
+          document.getElementById("error-message").classList.remove("hidden");
+        }
+      } catch (error) {
+        console.error("通信エラー:", error);
+        document.getElementById("error-message").classList.remove("hidden");
+      }
+    });
+  </script>
+
+</body>
+</html>
