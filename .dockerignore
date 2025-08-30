@@ -1,0 +1,20 @@
+# Docker build context trimming
+.git
+.gitignore
+**/.DS_Store
+**/node_modules
+**/.gradle
+**/build
+**/bin
+**/out
+**/.classpath
+**/.project
+**/.settings
+
+# IDE
+.vscode
+.idea
+
+# Logs
+**/*.log
+
