@@ -1,9 +1,9 @@
 package com.example.ecapp.controller;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.http.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -33,6 +33,18 @@ public class AuthController {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
 
+  @Value("${app.auth.cookie.name:token}")
+  private String cookieName;
+
+  @Value("${app.auth.cookie.secure:false}")
+  private boolean cookieSecure;
+
+  @Value("${app.auth.cookie.same-site:Strict}")
+  private String cookieSameSite;
+
+  @Value("${app.auth.cookie.max-age-seconds:3600}")
+  private long cookieMaxAgeSeconds;
+
   public AuthController(JwtUtil jwtUtil, AuthenticationManager authenticationManager,
       UserRepository userRepository, PasswordEncoder passwordEncoder) {
     this.jwtUtil = jwtUtil;
@@ -50,12 +62,12 @@ public class AuthController {
 
       String token = jwtUtil.generateToken(authentication.getName());
 
-      ResponseCookie cookie = ResponseCookie.from("token", token)
+      ResponseCookie cookie = ResponseCookie.from(cookieName, token)
           .httpOnly(true)
-          .secure(false)
+          .secure(cookieSecure)
           .path("/")
-          .maxAge(Duration.ofHours(1))
-          .sameSite("Strict")
+          .maxAge(Duration.ofSeconds(cookieMaxAgeSeconds))
+          .sameSite(cookieSameSite)
           .build();
 
       return ResponseEntity.ok()
@@ -84,13 +96,15 @@ public class AuthController {
 
   @PostMapping("/logout")
   public ResponseEntity<?> logout(HttpServletResponse response) {
-    Cookie cookie = new Cookie("token", null);
-    cookie.setHttpOnly(true);
-    cookie.setSecure(false);
-    cookie.setPath("/");
-    cookie.setMaxAge(0);
+    ResponseCookie cookie = ResponseCookie.from(cookieName, "")
+        .httpOnly(true)
+        .secure(cookieSecure)
+        .path("/")
+        .maxAge(0)
+        .sameSite(cookieSameSite)
+        .build();
 
-    response.addCookie(cookie);
+    response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     return ResponseEntity.ok().body("ログアウトしました");
   }
 
