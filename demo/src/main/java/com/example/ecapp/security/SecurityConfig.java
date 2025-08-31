@@ -83,12 +83,17 @@ public class SecurityConfig {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
-    // 環境変数/プロパティから許可オリジン（カンマ区切り）を読み込み
-    List<String> origins = Arrays.stream(allowedOrigins.split(","))
+    // 環境変数/プロパティから許可オリジン（カンマ区切り）。ワイルドカード(https://*.example.com)対応
+    List<String> entries = Arrays.stream(allowedOrigins.split(","))
         .map(String::trim)
         .filter(s -> !s.isEmpty())
         .toList();
-    config.setAllowedOrigins(origins);
+
+    List<String> exact = entries.stream().filter(s -> !s.contains("*")).toList();
+    List<String> patterns = entries.stream().filter(s -> s.contains("*")).toList();
+
+    if (!exact.isEmpty()) config.setAllowedOrigins(exact);
+    if (!patterns.isEmpty()) config.setAllowedOriginPatterns(patterns);
     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     config.setAllowedHeaders(List.of("*"));
     config.setAllowCredentials(true); // ✅ Cookie を許可
