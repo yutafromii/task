@@ -60,6 +60,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             .requestMatchers("/login", "/logout", "/register", "/error").permitAll()
+            .requestMatchers("/actuator/**").permitAll()
             .requestMatchers("/users/me").authenticated()
             .requestMatchers("/products/**").permitAll()
             .requestMatchers("/delivery-addresses/**").permitAll()
