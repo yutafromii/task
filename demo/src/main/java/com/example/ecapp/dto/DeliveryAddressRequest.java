@@ -16,7 +16,13 @@ public class DeliveryAddressRequest {
     private String name;
     private String furigana;
     private String postalCode;
+    // 旧: 単一住所（任意）
     private String address;
+    // 新: 分割住所
+    private String prefecture;
+    private String city;
+    private String addressLine1;
+    private String addressLine2;
     private String phone;
     private String email;
 }

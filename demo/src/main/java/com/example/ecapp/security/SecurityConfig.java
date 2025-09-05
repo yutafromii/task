@@ -20,6 +20,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.example.ecapp.security.JwtAuthenticationFilter;
 import com.example.ecapp.security.JwtUtil;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,6 +35,7 @@ public class SecurityConfig {
 
   private final JwtUtil jwtUtil;
   private final UserDetailsService userDetailsService;
+  private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
 
   @Value("${app.cors.allowed-origins:http://localhost:3000}")
   private String allowedOrigins;
@@ -61,14 +64,15 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             .requestMatchers("/login", "/logout", "/register", "/error").permitAll()
             .requestMatchers("/actuator/**").permitAll()
-            .requestMatchers("/users/me").authenticated()
             .requestMatchers("/products/**").permitAll()
-            .requestMatchers("/delivery-addresses/**").permitAll()
-            .requestMatchers("/carts/**").permitAll()
-            .requestMatchers("/cart-items/**").permitAll()
-            .requestMatchers("/orders/**").permitAll()
-            .requestMatchers("/admin/**").permitAll()
-            .requestMatchers("/users/**").permitAll()
+            .requestMatchers("/admin/**").hasAuthority("ADMIN")
+            .requestMatchers("/users/me").authenticated()
+            .requestMatchers("/carts/**").authenticated()
+            .requestMatchers("/cart-items/**").authenticated()
+            .requestMatchers("/orders/**").authenticated()
+            .requestMatchers("/delivery-addresses/**").authenticated()
+            .requestMatchers("/users/**").authenticated()
+            // other authenticated endpoints
             .anyRequest().authenticated())
         .logout(logout -> logout.disable())
         .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -94,7 +98,10 @@ public class SecurityConfig {
 
     if (!exact.isEmpty()) config.setAllowedOrigins(exact);
     if (!patterns.isEmpty()) config.setAllowedOriginPatterns(patterns);
-    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+    log.info("CORS allowed origins: {}", exact);
+    log.info("CORS allowed origin patterns: {}", patterns);
+    config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
     config.setAllowedHeaders(List.of("*"));
     config.setAllowCredentials(true); // ✅ Cookie を許可
     config.setMaxAge(3600L); // キャッシュ時間（任意）

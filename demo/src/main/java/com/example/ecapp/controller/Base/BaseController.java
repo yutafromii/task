@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.example.ecapp.service.Base.BaseService;
+import jakarta.validation.Valid;
 
 public abstract class BaseController<T, RQ, RS, S extends BaseService<T, RQ, RS>> {
   protected final S service;
@@ -33,13 +34,13 @@ public abstract class BaseController<T, RQ, RS, S extends BaseService<T, RQ, RS>
   }
 
   @PostMapping
-  public ResponseEntity<RS> create(@RequestBody RQ request) {
+  public ResponseEntity<RS> create(@Valid @RequestBody RQ request) {
     RS created = service.create(request);
     return ResponseEntity.ok(created);
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<RS> update(@PathVariable Long id, @RequestBody RQ request) {
+  public ResponseEntity<RS> update(@PathVariable Long id, @Valid @RequestBody RQ request) {
     try {
       RS updated = service.update(id, request);
       return ResponseEntity.ok(updated);

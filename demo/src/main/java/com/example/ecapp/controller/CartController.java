@@ -1,4 +1,6 @@
 package com.example.ecapp.controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,6 +27,13 @@ public class CartController extends BaseController<Cart, CartRequest, CartRespon
   public CartController(CartService cartService){
     super(cartService);
     this.cartService = cartService;
+  }
+
+  // 明示的に一覧取得を無効化（安全のため）
+  @Override
+  @GetMapping
+  public ResponseEntity<java.util.List<CartResponse>> getAll() {
+    return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
   }
 
   // 🔹 ログインユーザーのカート取得

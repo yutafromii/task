@@ -40,7 +40,21 @@ public abstract class AbstractBaseService<T, RQ, RS> implements BaseService<T, R
     if(!getRepository().existsById(id)){
       return false;
     }
-    getRepository().deleteById(id);
-    return true;
+    try {
+      getRepository().deleteById(id);
+      return true;
+    } catch (org.springframework.dao.DataIntegrityViolationException ex) {
+      // Allow subclasses to handle FK violations (e.g., soft delete)
+      if (handleDeleteConstraintViolation(id, ex)) {
+        return true;
+      }
+      throw ex;
+    }
   }
+
+  /**
+   * Optional hook for subclasses to handle delete FK constraint violations.
+   * Return true if the subclass handled the situation (e.g., performed a soft delete).
+   */
+  protected boolean handleDeleteConstraintViolation(Long id, Exception ex) { return false; }
 }

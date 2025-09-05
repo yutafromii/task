@@ -19,6 +19,6 @@ public class CartResponse {
 
   private Long cartId;
   private List<CartItemResponse> items;
-  private int total;
+  private long total;
   
 }

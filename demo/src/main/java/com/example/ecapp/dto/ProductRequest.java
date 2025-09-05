@@ -2,6 +2,11 @@ package com.example.ecapp.dto;
 
 import java.util.List;
 
+import com.example.ecapp.domain.Category;
+
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,12 +15,23 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductRequest {
+  @NotBlank
   private String name;
+
+  @NotBlank
   private String description;
+
   private String fabric;
+
+  @Min(0)
   private int price;
+
+  @Min(0)
   private int stock;
 
-  // 画像URLやvariantの登録などは、別APIやServiceで扱う想定
-  private List<String> imageUrls; // 追加
+  @NotNull
+  private Category category;
+
+  // 順序維持
+  private List<String> imageUrls;
 }

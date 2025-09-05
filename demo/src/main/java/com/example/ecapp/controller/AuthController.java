@@ -95,18 +95,22 @@ public class AuthController {
   }
 
   @PostMapping("/logout")
-  public ResponseEntity<?> logout(HttpServletResponse response) {
-    ResponseCookie cookie = ResponseCookie.from(cookieName, "")
-        .httpOnly(true)
-        .secure(cookieSecure)
-        .path("/")
-        .maxAge(0)
-        .sameSite(cookieSameSite)
-        .build();
+public ResponseEntity<?> logout(HttpServletResponse response) {
+  // セッション/コンテキストも明示的にクリア
+  org.springframework.security.core.context.SecurityContextHolder.clearContext();
 
-    response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-    return ResponseEntity.ok().body("ログアウトしました");
-  }
+  ResponseCookie cookie = ResponseCookie.from(cookieName, "")
+      .httpOnly(true)
+      .secure(cookieSecure)
+      .path("/")
+      .maxAge(0)                 // ← これで即時失効
+      .sameSite(cookieSameSite)
+      .build();
+
+  return ResponseEntity.ok()
+      .header(HttpHeaders.SET_COOKIE, cookie.toString())
+      .body("ログアウトしました");
+}
 
   @PostMapping("/register")
   public ResponseEntity<?> register(@RequestBody RegisterRequest request) {

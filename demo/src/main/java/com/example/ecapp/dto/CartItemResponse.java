@@ -16,7 +16,7 @@ public class CartItemResponse {
   private Long productId;
   private String productName;
   private String productDescription;
-  private int price;
+  private long price;
   private int quantity;
-  private int subtotal; // price * quantity
+  private long subtotal; // price * quantity
 }
