@@ -120,12 +120,17 @@ public ResponseEntity<?> logout(HttpServletResponse response) {
           .body(Collections.singletonMap("error", "すでに同じメールアドレスが存在します"));
     }
 
+    // role 判定: ADMIN 指定があれば ADMIN、その他/未指定は USER
+    String role = "USER";
+    if (request.getRole() != null && request.getRole().equalsIgnoreCase("ADMIN")) {
+      role = "ADMIN";
+    }
+
     AppUser newUser = new AppUser();
-    // newUser.setUsername(request.getUsername()); // 不要
     newUser.setPassword(passwordEncoder.encode(request.getPassword()));
     newUser.setName(request.getName());
     newUser.setEmail(request.getEmail());
-    newUser.setRole("USER");
+    newUser.setRole(role);
 
     userRepository.save(newUser);
 
